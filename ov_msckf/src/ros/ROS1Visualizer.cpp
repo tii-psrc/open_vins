@@ -284,7 +284,7 @@ void ROS1Visualizer::visualize_odometry(double timestamp) {
 
     nav_msgs::Odometry odomIinM;
     odomIinM.header.stamp = ros::Time(timestamp);
-    odomIinM.header.frame_id = "global";
+    odomIinM.header.frame_id = "odom_vio";
 
     // The POSE component (orientation and position)
     odomIinM.pose.pose.orientation.x = state_plus(0);
@@ -296,7 +296,7 @@ void ROS1Visualizer::visualize_odometry(double timestamp) {
     odomIinM.pose.pose.position.z = state_plus(6);
 
     // The TWIST component (angular and linear velocities)
-    odomIinM.child_frame_id = "imu";
+    odomIinM.child_frame_id = "imu_frame";
     odomIinM.twist.twist.linear.x = state_plus(7);   // vel in local frame
     odomIinM.twist.twist.linear.y = state_plus(8);   // vel in local frame
     odomIinM.twist.twist.linear.z = state_plus(9);   // vel in local frame
@@ -329,8 +329,8 @@ void ROS1Visualizer::visualize_odometry(double timestamp) {
   auto odom_pose = std::make_shared<ov_type::PoseJPL>();
   odom_pose->set_value(state_plus.block(0, 0, 7, 1));
   tf::StampedTransform trans = ROSVisualizerHelper::get_stamped_transform_from_pose(odom_pose, false);
-  trans.frame_id_ = "global";
-  trans.child_frame_id_ = "imu";
+  trans.frame_id_ = "odom_vio";
+  trans.child_frame_id_ = "imu_frame";
   if (publish_global2imu_tf) {
     mTfBr->sendTransform(trans);
   }
@@ -564,7 +564,7 @@ void ROS1Visualizer::publish_state() {
   geometry_msgs::PoseWithCovarianceStamped poseIinM;
   poseIinM.header.stamp = ros::Time(timestamp_inI);
   poseIinM.header.seq = poses_seq_imu;
-  poseIinM.header.frame_id = "global";
+  poseIinM.header.frame_id = "odom_vio";
   poseIinM.pose.pose.orientation.x = state->_imu->quat()(0);
   poseIinM.pose.pose.orientation.y = state->_imu->quat()(1);
   poseIinM.pose.pose.orientation.z = state->_imu->quat()(2);
@@ -600,7 +600,7 @@ void ROS1Visualizer::publish_state() {
   nav_msgs::Path arrIMU;
   arrIMU.header.stamp = ros::Time::now();
   arrIMU.header.seq = poses_seq_imu;
-  arrIMU.header.frame_id = "global";
+  arrIMU.header.frame_id = "odom_vio";
   for (size_t i = 0; i < poses_imu.size(); i += std::floor((double)poses_imu.size() / 16384.0) + 1) {
     arrIMU.poses.push_back(poses_imu.at(i));
   }
@@ -700,7 +700,7 @@ void ROS1Visualizer::publish_groundtruth() {
   geometry_msgs::PoseStamped poseIinM;
   poseIinM.header.stamp = ros::Time(timestamp_inI);
   poseIinM.header.seq = poses_seq_gt;
-  poseIinM.header.frame_id = "global";
+  poseIinM.header.frame_id = "odom_vio";
   poseIinM.pose.orientation.x = state_gt(1, 0);
   poseIinM.pose.orientation.y = state_gt(2, 0);
   poseIinM.pose.orientation.z = state_gt(3, 0);
@@ -719,7 +719,7 @@ void ROS1Visualizer::publish_groundtruth() {
   nav_msgs::Path arrIMU;
   arrIMU.header.stamp = ros::Time::now();
   arrIMU.header.seq = poses_seq_gt;
-  arrIMU.header.frame_id = "global";
+  arrIMU.header.frame_id = "odom_vio";
   for (size_t i = 0; i < poses_gt.size(); i += std::floor((double)poses_gt.size() / 16384.0) + 1) {
     arrIMU.poses.push_back(poses_gt.at(i));
   }
@@ -731,7 +731,7 @@ void ROS1Visualizer::publish_groundtruth() {
   // Publish our transform on TF
   tf::StampedTransform trans;
   trans.stamp_ = ros::Time::now();
-  trans.frame_id_ = "global";
+  trans.frame_id_ = "odom_vio";
   trans.child_frame_id_ = "truth";
   tf::Quaternion quat(state_gt(1, 0), state_gt(2, 0), state_gt(3, 0), state_gt(4, 0));
   trans.setRotation(quat);
