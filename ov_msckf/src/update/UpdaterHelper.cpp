@@ -380,7 +380,7 @@ void UpdaterHelper::get_feature_jacobian_full(std::shared_ptr<State> state, Upda
       Eigen::MatrixXd dpfc_dpfg(3, 3);
       dpfc_dpfg.setZero();
       dpfc_dpfg = R_ItoC * R_GtoIi;
-      std::cout<<"fixed"<<std::endl;
+      //std::cout<<"fixed"<<std::endl;
 
       // Derivative of p_FinCi in respect to camera clone state
       Eigen::MatrixXd dpfc_dclone = Eigen::MatrixXd::Zero(3, 6);
